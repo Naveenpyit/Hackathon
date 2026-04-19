@@ -10,6 +10,9 @@ class ApiConstants {
   static const String signup = '$baseUrl/api/auth/signup';
   static const String signin = '$baseUrl/api/auth/signin';
 
-  // ── WebSocket ────────────────────────────────────────────────────────────────
+  // ── Users ────────────────────────────────────────────────────────────────
+  static const String users = '$baseUrl/api/users';
+
+  // ── WebSocket ────────────────────────────────────────────────────────────
   static const String wsChat = '$wsUrl/ws/chat';
 }
