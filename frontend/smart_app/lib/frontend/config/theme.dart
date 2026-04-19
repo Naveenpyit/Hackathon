@@ -15,6 +15,10 @@ class AppTheme {
   static const Color surfaceColor = Color(0xFFFFFFFF);
   static const Color surfaceElevated = Color(0xFFF3F4FE);
   static const Color surfaceHighlight = Color(0xFFEEEDFF);
+  
+  // === CHAT SPECIFIC ===
+  static const Color chatBackground = Color(0xFFF8FAFC);
+  static const Color chatBubbleReceived = Color(0xFFF1F5F9);
 
   // === STATUS ===
   static const Color errorColor = Color(0xFFFF4757);

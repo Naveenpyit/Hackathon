@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../config/theme.dart';
 import '../../config/strings.dart';
+import 'chat_view_screen.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({super.key});
@@ -613,10 +614,11 @@ class _ChatsScreenState extends State<ChatsScreen>
   }
 
   void _openChat(ChatItem chat) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('${AppStrings.openingChat}${chat.name}'),
-      duration: const Duration(milliseconds: 800),
-    ));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ChatViewScreen(chat: chat),
+      ),
+    );
   }
 
   void _handleNav(int index) {
