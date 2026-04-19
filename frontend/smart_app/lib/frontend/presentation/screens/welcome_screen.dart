@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../config/strings.dart';
 import '../../core/utils/responsive_design.dart';
+import '../widgets/smart_app_logo.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -25,24 +26,32 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void initState() {
     super.initState();
     _heroController = AnimationController(
-        duration: const Duration(milliseconds: 1100), vsync: this);
+      duration: const Duration(milliseconds: 1100),
+      vsync: this,
+    );
     _floatController = AnimationController(
-        duration: const Duration(seconds: 3), vsync: this)
-      ..repeat(reverse: true);
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat(reverse: true);
     _pulseController = AnimationController(
-        duration: const Duration(seconds: 2), vsync: this)
-      ..repeat(reverse: true);
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
 
-    _fadeAnimation =
-        CurvedAnimation(parent: _heroController, curve: Curves.easeOut);
+    _fadeAnimation = CurvedAnimation(
+      parent: _heroController,
+      curve: Curves.easeOut,
+    );
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.25), end: Offset.zero).animate(
-      CurvedAnimation(parent: _heroController, curve: Curves.easeOutCubic),
-    );
+          CurvedAnimation(parent: _heroController, curve: Curves.easeOutCubic),
+        );
     _float = Tween<double>(begin: -6.0, end: 6.0).animate(
-        CurvedAnimation(parent: _floatController, curve: Curves.easeInOut));
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOut),
+    );
     _pulse = Tween<double>(begin: 0.96, end: 1.04).animate(
-        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
     _heroController.forward();
   }
 
@@ -83,29 +92,34 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                            height: isPortrait
-                                ? size.height * 0.06
-                                : AppTheme.spacingL),
+                          height: isPortrait
+                              ? size.height * 0.06
+                              : AppTheme.spacingL,
+                        ),
                         _buildLogo(isTablet, isPortrait),
                         SizedBox(
-                            height: isPortrait
-                                ? size.height * 0.04
-                                : AppTheme.spacingM),
+                          height: isPortrait
+                              ? size.height * 0.04
+                              : AppTheme.spacingM,
+                        ),
                         _buildHeroText(context, isTablet),
                         SizedBox(
-                            height: isPortrait
-                                ? size.height * 0.05
-                                : AppTheme.spacingL),
+                          height: isPortrait
+                              ? size.height * 0.05
+                              : AppTheme.spacingL,
+                        ),
                         _buildFeaturesSection(context, isPortrait, isTablet),
                         SizedBox(
-                            height: isPortrait
-                                ? size.height * 0.05
-                                : AppTheme.spacingL),
+                          height: isPortrait
+                              ? size.height * 0.05
+                              : AppTheme.spacingL,
+                        ),
                         _buildButtons(context),
                         SizedBox(
-                            height: isPortrait
-                                ? size.height * 0.04
-                                : AppTheme.spacingM),
+                          height: isPortrait
+                              ? size.height * 0.04
+                              : AppTheme.spacingM,
+                        ),
                       ],
                     ),
                   ),
@@ -133,10 +147,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 height: 260,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: RadialGradient(colors: [
-                    AppTheme.primaryColor.withAlpha(22),
-                    AppTheme.primaryColor.withAlpha(0),
-                  ]),
+                  gradient: RadialGradient(
+                    colors: [
+                      AppTheme.primaryColor.withAlpha(22),
+                      AppTheme.primaryColor.withAlpha(0),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -154,10 +170,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 height: 200,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: RadialGradient(colors: [
-                    AppTheme.accentColor.withAlpha(18),
-                    AppTheme.accentColor.withAlpha(0),
-                  ]),
+                  gradient: RadialGradient(
+                    colors: [
+                      AppTheme.accentColor.withAlpha(18),
+                      AppTheme.accentColor.withAlpha(0),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -170,8 +188,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   List<Widget> _sparkles(Size size) {
     final positions = [
-      [0.12, 0.14], [0.85, 0.10], [0.04, 0.50],
-      [0.93, 0.37], [0.70, 0.22], [0.28, 0.76],
+      [0.12, 0.14],
+      [0.85, 0.10],
+      [0.04, 0.50],
+      [0.93, 0.37],
+      [0.70, 0.22],
+      [0.28, 0.76],
     ];
     return positions.asMap().entries.map((e) {
       final i = e.key;
@@ -182,10 +204,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         child: AnimatedBuilder(
           animation: _floatController,
           builder: (_, __) => Opacity(
-            opacity: (0.2 +
-                    0.3 *
-                        math.sin(_floatController.value * math.pi + i))
-                .abs(),
+            opacity:
+                (0.2 + 0.3 * math.sin(_floatController.value * math.pi + i))
+                    .abs(),
             child: Container(
               width: 5,
               height: 5,
@@ -221,10 +242,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     width: sz + 58,
                     height: sz + 58,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular((sz + 58) * 0.22),
                       border: Border.all(
-                          color: AppTheme.primaryColor.withAlpha(28),
-                          width: 1.5),
+                        color: AppTheme.primaryColor.withAlpha(28),
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -233,33 +255,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 width: sz + 28,
                 height: sz + 28,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular((sz + 28) * 0.22),
                   border: Border.all(
-                      color: AppTheme.primaryColor.withAlpha(55), width: 1.5),
+                    color: AppTheme.primaryColor.withAlpha(55),
+                    width: 1.5,
+                  ),
                 ),
               ),
-              Container(
-                width: sz,
-                height: sz,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: AppTheme.primaryGradient,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Color(0x506C63FF),
-                        blurRadius: 28,
-                        spreadRadius: 4),
-                  ],
-                ),
-                 child: Center(
-                   child: Image.asset(
-                     'frontend/smart_app/assets/media.png', 
-                     width: sz, 
-                     height: sz, 
-                     fit: BoxFit.contain
-                   ),
-                 ),
-              ),
+              SmartAppLogo(size: sz, withShadow: true),
             ],
           ),
         ),
@@ -277,12 +280,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             AppStrings.welcomeTitle,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  color: Colors.white,
-                  fontSize: isTablet ? AppTheme.fontSize3XL * 1.3 : null,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -1.0,
-                  height: 1.1,
-                ),
+              color: Colors.white,
+              fontSize: isTablet ? AppTheme.fontSize3XL * 1.3 : null,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -1.0,
+              height: 1.1,
+            ),
           ),
         ),
         const SizedBox(height: AppTheme.spacingM),
@@ -290,44 +293,64 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           AppStrings.welcomeSubtitle,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppTheme.textSecondary,
-                fontSize: isTablet ? AppTheme.fontSizeL : null,
-              ),
+            color: AppTheme.textSecondary,
+            fontSize: isTablet ? AppTheme.fontSizeL : null,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildFeaturesSection(
-      BuildContext context, bool isPortrait, bool isTablet) {
+    BuildContext context,
+    bool isPortrait,
+    bool isTablet,
+  ) {
     final features = [
-      _Feat(Icons.flash_on_rounded, AppStrings.featureMessaging,
-          AppStrings.featureMessagingDesc, AppTheme.primaryColor),
-      _Feat(Icons.groups_2_rounded, AppStrings.featureCollaboration,
-          AppStrings.featureCollaborationDesc, AppTheme.accentColor),
-      _Feat(Icons.shield_rounded, AppStrings.featureSecurity,
-          AppStrings.featureSecurityDesc, AppTheme.successColor),
+      _Feat(
+        Icons.flash_on_rounded,
+        AppStrings.featureMessaging,
+        AppStrings.featureMessagingDesc,
+        AppTheme.primaryColor,
+      ),
+      _Feat(
+        Icons.groups_2_rounded,
+        AppStrings.featureCollaboration,
+        AppStrings.featureCollaborationDesc,
+        AppTheme.accentColor,
+      ),
+      _Feat(
+        Icons.shield_rounded,
+        AppStrings.featureSecurity,
+        AppStrings.featureSecurityDesc,
+        AppTheme.successColor,
+      ),
     ];
 
     if (isTablet && !isPortrait) {
       return Row(
         children: features
-            .map((f) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppTheme.spacingS),
-                    child: _FeatureCard(feat: f),
+            .map(
+              (f) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.spacingS,
                   ),
-                ))
+                  child: _FeatureCard(feat: f),
+                ),
+              ),
+            )
             .toList(),
       );
     }
     return Column(
       children: features
-          .map((f) => Padding(
-                padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                child: _FeatureCard(feat: f),
-              ))
+          .map(
+            (f) => Padding(
+              padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+              child: _FeatureCard(feat: f),
+            ),
+          )
           .toList(),
     );
   }
@@ -343,9 +366,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             boxShadow: const [
               BoxShadow(
-                  color: Color(0x506C63FF),
-                  blurRadius: 18,
-                  offset: Offset(0, 7)),
+                color: Color(0x506C63FF),
+                blurRadius: 18,
+                offset: Offset(0, 7),
+              ),
             ],
           ),
           child: Material(
@@ -357,15 +381,21 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(AppStrings.getStarted,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: AppTheme.fontSizeXL,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.4)),
+                    Text(
+                      AppStrings.getStarted,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: AppTheme.fontSizeXL,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
                     SizedBox(width: AppTheme.spacingS),
-                    Icon(Icons.arrow_forward_rounded,
-                        color: Colors.white, size: 20),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),
@@ -388,10 +418,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 child: Text(
                   AppStrings.createAccount,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
-                      ),
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
                 ),
               ),
             ),
@@ -423,9 +453,10 @@ class _FeatureCard extends StatelessWidget {
         border: Border.all(color: AppTheme.borderColor),
         boxShadow: [
           BoxShadow(
-              color: feat.color.withAlpha(16),
-              blurRadius: 16,
-              offset: const Offset(0, 4)),
+            color: feat.color.withAlpha(16),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
@@ -444,22 +475,29 @@ class _FeatureCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(feat.title,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
-                        )),
+                Text(
+                  feat.title,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: AppTheme.spacingXS),
-                Text(feat.description,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                          height: 1.4,
-                        )),
+                Text(
+                  feat.description,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
-          Icon(Icons.chevron_right_rounded,
-              color: feat.color.withAlpha(120), size: 20),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: feat.color.withAlpha(120),
+            size: 20,
+          ),
         ],
       ),
     );
