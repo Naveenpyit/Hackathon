@@ -13,6 +13,10 @@ export interface SigninRequest {
   password: string;
 }
 
+export interface RefreshRequest {
+  refresh_token: string;
+}
+
 export interface SignupResponse {
   status: number;
   message: string;

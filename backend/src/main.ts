@@ -64,6 +64,7 @@ console.log(`📝 Health check: http://localhost:${port}/health`);
 console.log(`\n✅ Available endpoints:`);
 console.log(`   POST   /api/auth/signup   - Register new user`);
 console.log(`   POST   /api/auth/signin   - Login user`);
+console.log(`   POST   /api/auth/refresh  - Refresh access token`);
 console.log(`   GET    /api/auth/me       - Get current user (requires auth token)`);
 
 await app.listen({ port });

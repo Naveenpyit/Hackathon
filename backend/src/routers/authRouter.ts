@@ -7,6 +7,7 @@ const router = new Router();
 // Auth routes
 router.post("/api/auth/signup", authController.signup);
 router.post("/api/auth/signin", authController.signin);
+router.post("/api/auth/refresh", authController.refreshToken);
 router.get("/api/auth/me", requireAuth, authController.getCurrentUser);
 
 // Email confirmation bypass endpoint (for development)
