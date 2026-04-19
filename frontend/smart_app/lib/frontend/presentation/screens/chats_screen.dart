@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../../config/theme.dart';
 import '../../config/strings.dart';
 import '../../core/services/storage_service.dart';
+import '../../core/services/websocket_service.dart';
+import 'chat_detail_screen.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({super.key});
@@ -39,11 +41,19 @@ class _ChatsScreenState extends State<ChatsScreen> with SingleTickerProviderStat
     _animController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this)..forward();
     _searchController.addListener(() => setState(() {}));
     _loadUser();
+    _connectWebSocket();
   }
 
   Future<void> _loadUser() async {
     final name = await StorageService.instance.getUserName();
     if (mounted) setState(() => _userName = name);
+  }
+
+  Future<void> _connectWebSocket() async {
+    await WebSocketService.instance.connect();
+    WebSocketService.instance.messages.listen((messages) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -261,7 +271,18 @@ class _ChatsScreenState extends State<ChatsScreen> with SingleTickerProviderStat
     );
   }
 
-  void _openChat(ChatItem chat) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opening ${chat.name}'), duration: const Duration(milliseconds: 600)));
+  void _openChat(ChatItem chat) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatDetailScreen(
+          chatName: chat.name,
+          avatar: chat.avatar,
+          avatarColor: chat.avatarColor,
+        ),
+      ),
+    );
+  }
 
   void _showChatOptions(ChatItem chat) {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))), builder: (ctx) => Padding(
