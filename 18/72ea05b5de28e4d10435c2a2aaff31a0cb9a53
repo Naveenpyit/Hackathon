@@ -1,0 +1,23 @@
+frontend/smart_app/pubspec.yaml
+  214c20dd901958c9 68-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.1",
+  "base_commit_sha": "1872ea05b5de28e4d10435c2a2aaff31a0cb9a53",
+  "prompts": {
+    "214c20dd901958c9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_25ba485a4ffeb7HmWe2Mv9m5Sh",
+        "model": "unknown"
+      },
+      "human_author": "Dharshith",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
