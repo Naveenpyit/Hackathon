@@ -34,17 +34,6 @@ export interface SigninResponse {
   data: {
     access_token: string;
     refresh_token: string;
-    user: {
-      id: string;
-      email: string;
-      designation: {
-        id: number;
-        name: string;
-      } | null;
-      status: string;
-      shift_time: string;
-      user_name: string;
-    };
   } | null;
 }
 
@@ -57,6 +46,7 @@ export interface ApiResponse {
 export interface UserDetails {
   id: string;
   user_id: string;
+  email?: string;
   designation_id: number | null;
   designation?: {
     id: number;
