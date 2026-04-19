@@ -6,3 +6,4 @@ export 'state_widgets.dart';
 export 'chat_tile.dart';
 export 'custom_app_bar.dart';
 export 'smart_app_logo.dart';
+export 'connection_status_bar.dart';

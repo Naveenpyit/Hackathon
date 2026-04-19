@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../config/strings.dart';
 import '../../core/utils/validation_utils.dart';
 import '../../core/utils/responsive_design.dart';
+import '../../core/services/auth_service.dart';
 import '../widgets/index.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -44,20 +45,33 @@ class _SignInScreenState extends State<SignInScreen>
     super.dispose();
   }
 
-  void _handleSignIn() {
+  Future<void> _handleSignIn() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          Navigator.pushReplacementNamed(context, '/email_verification');
+      final result = await AuthService.instance.signin(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (result.success) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.message),
+              backgroundColor: Colors.red.shade700,
+            ),
+          );
         }
-      });
+      }
     }
   }
 
