@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../config/strings.dart';
 import '../../core/utils/validation_utils.dart';
 import '../../core/utils/responsive_design.dart';
+import '../../core/services/auth_service.dart';
 import '../widgets/index.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -49,28 +50,45 @@ class _SignUpScreenState extends State<SignUpScreen>
     super.dispose();
   }
 
-  void _handleSignUp() {
-    if (_formKey.currentState!.validate()) {
-      if (!_agreeToTerms) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(AppStrings.agreeTermsRequired)),
-        );
-        return;
-      }
+  Future<void> _handleSignUp() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      setState(() {
-        _isLoading = true;
-      });
-
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          Navigator.pushReplacementNamed(context, '/email_verification');
-        }
-      });
+    if (!_agreeToTerms) {
+      _showSnack(AppStrings.agreeTermsRequired, isError: true);
+      return;
     }
+
+    setState(() => _isLoading = true);
+
+    final result = await AuthService.instance.signup(
+      email: _emailController.text,
+      password: _passwordController.text,
+      userName: _nameController.text,
+    );
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result.success) {
+      _showSnack(result.message, isError: false);
+      Navigator.pushReplacementNamed(context, '/email_verification');
+    } else {
+      _showSnack(result.message, isError: true);
+    }
+  }
+
+  void _showSnack(String message, {required bool isError}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            isError ? AppTheme.errorColor : AppTheme.successColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        ),
+      ),
+    );
   }
 
   @override

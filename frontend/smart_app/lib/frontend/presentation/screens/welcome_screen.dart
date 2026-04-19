@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../config/strings.dart';
 import '../../core/utils/responsive_design.dart';
+import '../widgets/smart_app_logo.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -221,7 +222,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     width: sz + 58,
                     height: sz + 58,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular((sz + 58) * 0.22),
                       border: Border.all(
                           color: AppTheme.primaryColor.withAlpha(28),
                           width: 1.5),
@@ -233,29 +234,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 width: sz + 28,
                 height: sz + 28,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular((sz + 28) * 0.22),
                   border: Border.all(
                       color: AppTheme.primaryColor.withAlpha(55), width: 1.5),
                 ),
               ),
-              Container(
-                width: sz,
-                height: sz,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: AppTheme.primaryGradient,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Color(0x506C63FF),
-                        blurRadius: 28,
-                        spreadRadius: 4),
-                  ],
-                ),
-                child: Center(
-                  child: Icon(Icons.bolt_rounded,
-                      color: Colors.white, size: sz * 0.47),
-                ),
-              ),
+              SmartAppLogo(size: sz, withShadow: true),
             ],
           ),
         ),
