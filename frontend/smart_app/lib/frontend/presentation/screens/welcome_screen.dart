@@ -493,11 +493,6 @@ class _FeatureCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(
-            Icons.chevron_right_rounded,
-            color: feat.color.withAlpha(120),
-            size: 20,
-          ),
         ],
       ),
     );
