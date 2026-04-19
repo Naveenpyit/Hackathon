@@ -93,6 +93,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
       body: Column(
         children: [
           _buildHeader(),
+          _buildSearchBar(),
           Expanded(child: _buildBody()),
         ],
       ),
@@ -104,110 +105,155 @@ class _NewChatScreenState extends State<NewChatScreen> {
       decoration: const BoxDecoration(
         gradient: AppTheme.primaryGradient,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
         ),
       ),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 20, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.fromLTRB(12, 8, 20, 20),
+          child: Row(
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const Expanded(
-                    child: Text(
+              IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
                       'New Chat',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 22,
                         fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.refresh_rounded,
-                      color: Colors.white,
+                    const SizedBox(height: 2),
+                    Text(
+                      '${_users.length} contact${_users.length == 1 ? '' : 's'} available',
+                      style: TextStyle(
+                        color: Colors.white.withAlpha(200),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                    onPressed: _loadUsers,
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 4),
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  '${_users.length} contact${_users.length == 1 ? '' : 's'} available',
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(200),
-                    fontSize: 13,
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+                onPressed: _loadUsers,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    final hasText = _searchController.text.isNotEmpty;
+    return Transform.translate(
+      offset: const Offset(0, -26),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          height: 56,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(18),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: AppTheme.primaryColor.withAlpha(20),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 14),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.search_rounded,
+                  color: AppTheme.primaryColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 15,
                     fontWeight: FontWeight.w500,
+                    letterSpacing: -0.1,
+                  ),
+                  cursorColor: Colors.black,
+                  cursorWidth: 1.6,
+                  cursorHeight: 18,
+                  decoration: InputDecoration(
+                    hintText: 'Search contacts',
+                    hintStyle: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 52,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.search_rounded,
-                      color: Colors.grey.shade700,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        cursorColor: Colors.black,
-                        decoration: InputDecoration(
-                          hintText: 'Search contacts by name or email',
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    ),
-                    if (_searchController.text.isNotEmpty)
-                      GestureDetector(
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (child, anim) =>
+                    ScaleTransition(scale: anim, child: child),
+                child: hasText
+                    ? GestureDetector(
+                        key: const ValueKey('clear'),
                         onTap: () {
                           _searchController.clear();
                           setState(() {});
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 10),
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            shape: BoxShape.circle,
+                          ),
                           child: Icon(
                             Icons.close_rounded,
                             color: Colors.grey.shade700,
-                            size: 20,
+                            size: 16,
                           ),
                         ),
                       )
-                    else
-                      const SizedBox(width: 8),
-                  ],
-                ),
+                    : const SizedBox(
+                        key: ValueKey('empty'),
+                        width: 14,
+                      ),
               ),
             ],
           ),
@@ -245,7 +291,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
 
     return ListView.separated(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(top: 12, bottom: 40),
+      padding: const EdgeInsets.only(bottom: 40),
       itemCount: list.length,
       separatorBuilder: (_, __) => const Divider(
         height: 1,
