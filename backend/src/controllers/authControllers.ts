@@ -90,9 +90,12 @@ export const authController = {
       ctx.response.status = 200;
       ctx.response.body = {
         status: 1,
-        message: result.message,
-        data: result.data,
-      } as SigninResponse;
+        message: "success",
+        data: {
+          access_token: result.data!.access_token,
+          refresh_token: result.data!.refresh_token,
+        },
+      };
     } catch (error) {
       console.error("Signin controller error:", error);
       ctx.response.status = 500;

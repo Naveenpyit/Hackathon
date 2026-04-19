@@ -1,4 +1,4 @@
-import { supabase } from "../config/supabase.ts";
+import { supabase, supabaseAdmin } from "../config/supabase.ts";
 import { SignupRequest, SigninRequest, UserDetails } from "../types/auth.ts";
 
 export const authService = {
@@ -20,6 +20,12 @@ export const authService = {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: request.email,
         password: request.password,
+        options: {
+          emailRedirectTo: `${Deno.env.get("APP_URL") || "http://localhost:3000"}/auth/callback`,
+          data: {
+            user_name: request.user_name,
+          }
+        }
       });
 
       if (authError || !authData?.user) {
@@ -89,7 +95,7 @@ export const authService = {
   async signin(request: SigninRequest): Promise<{ 
     success: boolean; 
     message: string; 
-    data?: { access_token: string; refresh_token: string; user: UserDetails }; 
+    data?: { access_token: string; refresh_token: string }; 
     error?: string 
   }> {
     try {
@@ -99,46 +105,74 @@ export const authService = {
         password: request.password,
       });
 
-      if (authError || !authData?.user || !authData?.session) {
-        return { 
-          success: false, 
-          message: authError?.message || "Invalid email or password", 
-          error: "AUTH_ERROR" 
+      if (authError) {
+        // Handle email not confirmed - auto-confirm via admin and retry
+        if (authError.message.includes("Email not confirmed")) {
+          if (supabaseAdmin) {
+            try {
+              // Look up the user by email to get their auth uid
+              const { data: userList } = await supabaseAdmin.auth.admin.listUsers();
+              const authUser = userList?.users?.find((u: any) => u.email === request.email);
+
+              if (authUser) {
+                // Auto-confirm the email via admin
+                await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+                  email_confirm: true,
+                });
+                console.log(`✅ Auto-confirmed email for ${request.email}`);
+
+                // Retry sign-in with real credentials
+                const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+                  email: request.email,
+                  password: request.password,
+                });
+
+                if (!retryError && retryData?.session) {
+                  return {
+                    success: true,
+                    message: "success",
+                    data: {
+                      access_token: retryData.session.access_token,
+                      refresh_token: retryData.session.refresh_token,
+                    },
+                  };
+                }
+              }
+            } catch (e) {
+              console.warn("Failed to auto-confirm email:", e);
+            }
+          }
+
+          // Fallback when no admin client / confirmation failed
+          console.warn("Auth warning: Email not confirmed and no service key configured. Set SUPABASE_SERVICE_KEY in .env to enable auto-confirm.");
+          return {
+            success: false,
+            message: "Email not confirmed. Please check your inbox or contact admin.",
+            error: "EMAIL_NOT_CONFIRMED",
+          };
+        }
+
+        return {
+          success: false,
+          message: authError.message || "Invalid email or password",
+          error: "AUTH_ERROR",
         };
       }
 
-      // Fetch user details with designation
-      const { data: userDetails, error: fetchError } = await supabase
-        .from("user_details")
-        .select(`
-          *,
-          designation:designation(id, name)
-        `)
-        .eq("user_id", authData.user.id)
-        .single();
-
-      if (fetchError || !userDetails) {
+      if (!authData?.user || !authData?.session) {
         return { 
           success: false, 
-          message: "User details not found", 
-          error: "USER_NOT_FOUND" 
+          message: "Invalid email or password", 
+          error: "AUTH_ERROR" 
         };
       }
 
       return {
         success: true,
-        message: "Login Successfully",
+        message: "success",
         data: {
           access_token: authData.session.access_token,
           refresh_token: authData.session.refresh_token,
-          user: {
-            id: userDetails.id,
-            email: authData.user.email!,
-            designation: userDetails.designation,
-            status: userDetails.status,
-            shift_time: userDetails.shift_time,
-            user_name: userDetails.user_name,
-          },
         },
       };
     } catch (error) {
