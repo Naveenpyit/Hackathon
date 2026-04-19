@@ -95,10 +95,10 @@ class AppTheme {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light, // white icons (Android)
-        statusBarBrightness: Brightness.dark, // white icons (iOS)
-        systemNavigationBarColor: Colors.white, // white nav bar
-        systemNavigationBarIconBrightness: Brightness.dark, // dark icons
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: primaryColor,
+        systemNavigationBarIconBrightness: Brightness.light,
         systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
@@ -282,9 +282,9 @@ class AppTheme {
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: surfaceColor,
-        selectedItemColor: primaryColor,
-        unselectedItemColor: textMuted,
+        backgroundColor: primaryColor,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
       ),
