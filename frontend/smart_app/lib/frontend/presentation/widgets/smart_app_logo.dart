@@ -33,24 +33,23 @@ class SmartAppLogo extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
+        gradient: AppTheme.primaryGradient,
         borderRadius: BorderRadius.circular(radius),
         boxShadow: withShadow
             ? [
                 BoxShadow(
-                  color: AppTheme.primaryColor.withAlpha(50),
+                  color: AppTheme.primaryColor.withAlpha(90),
                   blurRadius: size * 0.28,
                   offset: Offset(0, size * 0.08),
                 ),
               ]
             : null,
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: Image.asset(
-          'assets/logo/Media.png',
-          width: size,
-          height: size,
-          fit: BoxFit.contain,
+      child: Center(
+        child: Icon(
+          Icons.bolt_rounded,
+          color: Colors.white,
+          size: size * 0.56,
         ),
       ),
     );
