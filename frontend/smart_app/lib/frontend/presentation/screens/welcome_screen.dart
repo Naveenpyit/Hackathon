@@ -251,10 +251,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         spreadRadius: 4),
                   ],
                 ),
-                child: Center(
-                  child: Icon(Icons.bolt_rounded,
-                      color: Colors.white, size: sz * 0.47),
-                ),
+                 child: Center(
+                   child: Image.asset(
+                     'frontend/smart_app/assets/media.png', 
+                     width: sz, 
+                     height: sz, 
+                     fit: BoxFit.contain
+                   ),
+                 ),
               ),
             ],
           ),
