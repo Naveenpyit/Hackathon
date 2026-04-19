@@ -1,5 +1,6 @@
 import { Application } from "oak";
 import { authRouter, designationRouter } from "./routers/routers.ts";
+import { handleChatConnection, handleChatMessage, handleDisconnect } from "./controllers/chatControllers.ts";
 
 const app = new Application();
 
@@ -30,6 +31,47 @@ app.use(async (ctx, next) => {
       data: null,
     };
   }
+});
+
+// WebSocket upgrade handling
+app.use(async (ctx, next) => {
+  if (ctx.request.url.pathname === "/ws/chat" && ctx.request.method === "GET") {
+    if (!ctx.isUpgradable) {
+      ctx.response.status = 426;
+      ctx.response.body = { status: 0, message: "WebSocket upgrade required" };
+      return;
+    }
+
+    // Extract token from query param: /ws/chat?token=<jwt>
+    const token = ctx.request.url.searchParams.get("token") || undefined;
+
+    ctx.response.headers.set("Sec-WebSocket-Protocol", "json");
+    
+    const ws = await ctx.upgrade();
+
+    ws.onopen = async () => {
+      await handleChatConnection(ws, token);
+    };
+
+    ws.onmessage = async (event) => {
+      if (event.data) {
+        await handleChatMessage(ws, event.data.toString());
+      }
+    };
+
+    ws.onclose = () => {
+      handleDisconnect(ws);
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      handleDisconnect(ws);
+    };
+
+    return;
+  }
+
+  await next();
 });
 
 // Routes
@@ -64,6 +106,8 @@ console.log(`📝 Health check: http://localhost:${port}/health`);
 console.log(`\n✅ Available endpoints:`);
 console.log(`   POST   /api/auth/signup   - Register new user`);
 console.log(`   POST   /api/auth/signin   - Login user`);
+console.log(`   POST   /api/auth/refresh  - Refresh access token`);
 console.log(`   GET    /api/auth/me       - Get current user (requires auth token)`);
+console.log(`   WS     /ws/chat          - WebSocket chat (requires token)`);
 
 await app.listen({ port });

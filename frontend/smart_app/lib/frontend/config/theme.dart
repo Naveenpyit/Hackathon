@@ -92,14 +92,17 @@ class AppTheme {
   static const double fontSize4XL = 36.0;
 
   // === SYSTEM UI ===
+  /// Transparent status bar with white icons — the gradient banner is
+  /// drawn behind it (see [main.dart] MaterialApp.builder) so the bar
+  /// inherits the brand `primaryGradient`.
   static void setSystemUI() {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFFF8F9FF),
-        systemNavigationBarIconBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: primaryColor,
+        systemNavigationBarIconBrightness: Brightness.light,
         systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
@@ -139,60 +142,67 @@ class AppTheme {
         ),
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
         ),
       ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(
-            fontSize: fontSize3XL,
-            fontWeight: FontWeight.w900,
-            color: textPrimary,
-            letterSpacing: -0.8),
+          fontSize: fontSize3XL,
+          fontWeight: FontWeight.w900,
+          color: textPrimary,
+          letterSpacing: -0.8,
+        ),
         displayMedium: TextStyle(
-            fontSize: fontSize2XL,
-            fontWeight: FontWeight.w800,
-            color: textPrimary),
+          fontSize: fontSize2XL,
+          fontWeight: FontWeight.w800,
+          color: textPrimary,
+        ),
         displaySmall: TextStyle(
-            fontSize: fontSizeXL,
-            fontWeight: FontWeight.w700,
-            color: textPrimary),
+          fontSize: fontSizeXL,
+          fontWeight: FontWeight.w700,
+          color: textPrimary,
+        ),
         headlineMedium: TextStyle(
-            fontSize: fontSizeXL,
-            fontWeight: FontWeight.w600,
-            color: textPrimary),
+          fontSize: fontSizeXL,
+          fontWeight: FontWeight.w600,
+          color: textPrimary,
+        ),
         headlineSmall: TextStyle(
-            fontSize: fontSizeL,
-            fontWeight: FontWeight.w600,
-            color: textPrimary),
+          fontSize: fontSizeL,
+          fontWeight: FontWeight.w600,
+          color: textPrimary,
+        ),
         titleLarge: TextStyle(
-            fontSize: fontSizeL,
-            fontWeight: FontWeight.w600,
-            color: textPrimary),
+          fontSize: fontSizeL,
+          fontWeight: FontWeight.w600,
+          color: textPrimary,
+        ),
         bodyLarge: TextStyle(
-            fontSize: fontSizeL, color: textSecondary, height: 1.6),
-        bodyMedium:
-            TextStyle(fontSize: fontSizeM, color: textSecondary),
+          fontSize: fontSizeL,
+          color: textSecondary,
+          height: 1.6,
+        ),
+        bodyMedium: TextStyle(fontSize: fontSizeM, color: textSecondary),
         bodySmall: TextStyle(fontSize: fontSizeS, color: textMuted),
         labelLarge: TextStyle(
-            fontSize: fontSizeM,
-            fontWeight: FontWeight.w500,
-            color: textPrimary),
+          fontSize: fontSizeM,
+          fontWeight: FontWeight.w500,
+          color: textPrimary,
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceElevated,
-        hintStyle:
-            const TextStyle(color: textMuted, fontSize: fontSizeM),
-        labelStyle: const TextStyle(
-            color: textSecondary, fontSize: fontSizeM),
+        hintStyle: const TextStyle(color: textMuted, fontSize: fontSizeM),
+        labelStyle: const TextStyle(color: textSecondary, fontSize: fontSizeM),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMedium),
           borderSide: const BorderSide(color: borderColor, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMedium),
-          borderSide:
-              const BorderSide(color: primaryColor, width: 2),
+          borderSide: const BorderSide(color: primaryColor, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMedium),
@@ -203,15 +213,17 @@ class AppTheme {
           borderSide: const BorderSide(color: errorColor, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: spacingM, vertical: spacingM),
-        prefixIconColor: WidgetStateColor.resolveWith((states) =>
-            states.contains(WidgetState.focused)
-                ? primaryColor
-                : textMuted),
-        suffixIconColor: WidgetStateColor.resolveWith((states) =>
-            states.contains(WidgetState.focused)
-                ? primaryColor
-                : textMuted),
+          horizontal: spacingM,
+          vertical: spacingM,
+        ),
+        prefixIconColor: WidgetStateColor.resolveWith(
+          (states) =>
+              states.contains(WidgetState.focused) ? primaryColor : textMuted,
+        ),
+        suffixIconColor: WidgetStateColor.resolveWith(
+          (states) =>
+              states.contains(WidgetState.focused) ? primaryColor : textMuted,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -223,12 +235,15 @@ class AppTheme {
             borderRadius: BorderRadius.circular(radiusMedium),
           ),
           textStyle: const TextStyle(
-              fontSize: fontSizeL,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.5),
+            fontSize: fontSizeL,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
+          ),
           minimumSize: const Size(double.infinity, 56),
           padding: const EdgeInsets.symmetric(
-              horizontal: spacingL, vertical: spacingM),
+            horizontal: spacingL,
+            vertical: spacingM,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -239,9 +254,13 @@ class AppTheme {
             borderRadius: BorderRadius.circular(radiusMedium),
           ),
           textStyle: const TextStyle(
-              fontSize: fontSizeL, fontWeight: FontWeight.w600),
+            fontSize: fontSizeL,
+            fontWeight: FontWeight.w600,
+          ),
           padding: const EdgeInsets.symmetric(
-              horizontal: spacingL, vertical: spacingM),
+            horizontal: spacingL,
+            vertical: spacingM,
+          ),
         ),
       ),
       cardTheme: CardThemeData(
@@ -254,18 +273,22 @@ class AppTheme {
         margin: EdgeInsets.zero,
       ),
       dividerTheme: const DividerThemeData(
-          color: dividerColor, thickness: 1, space: spacingM),
+        color: dividerColor,
+        thickness: 1,
+        space: spacingM,
+      ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: primaryColor,
         foregroundColor: textOnPrimary,
         elevation: 6,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusMedium)),
+          borderRadius: BorderRadius.circular(radiusMedium),
+        ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: surfaceColor,
-        selectedItemColor: primaryColor,
-        unselectedItemColor: textMuted,
+        backgroundColor: primaryColor,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
       ),
@@ -273,7 +296,8 @@ class AppTheme {
         backgroundColor: textPrimary,
         contentTextStyle: const TextStyle(color: Colors.white),
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusSmall)),
+          borderRadius: BorderRadius.circular(radiusSmall),
+        ),
         behavior: SnackBarBehavior.floating,
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(

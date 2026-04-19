@@ -219,4 +219,40 @@ export const authService = {
       return { success: false, error: "INTERNAL_ERROR" };
     }
   },
+
+  // Refresh token
+  async refreshToken(refreshToken: string): Promise<{ 
+    success: boolean; 
+    message: string; 
+    data?: { access_token: string; refresh_token: string }; 
+    error?: string 
+  }> {
+    try {
+      const { data: sessionData, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+
+      if (error || !sessionData?.session) {
+        return {
+          success: false,
+          message: error?.message || "Invalid or expired refresh token",
+          error: "REFRESH_ERROR",
+        };
+      }
+
+      return {
+        success: true,
+        message: "Token refreshed successfully",
+        data: {
+          access_token: sessionData.session.access_token,
+          refresh_token: sessionData.session.refresh_token,
+        },
+      };
+    } catch (error) {
+      console.error("Refresh token error:", error);
+      return {
+        success: false,
+        message: "An unexpected error occurred",
+        error: "INTERNAL_ERROR",
+      };
+    }
+  },
 };

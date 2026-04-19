@@ -6,7 +6,9 @@ import 'frontend/presentation/screens/signup_screen.dart';
 import 'frontend/presentation/screens/forgot_password_screen.dart';
 import 'frontend/presentation/screens/email_verification_screen.dart';
 import 'frontend/presentation/screens/chats_screen.dart';
+import 'frontend/presentation/widgets/connection_status_bar.dart';
 import 'frontend/core/routes/routes.dart';
+import 'frontend/core/services/storage_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,13 +24,50 @@ class SmartApp extends StatefulWidget {
 }
 
 class _SmartAppState extends State<SmartApp> {
+  Widget _initialScreen = const WelcomeScreen();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSession();
+  }
+
+  Future<void> _checkSession() async {
+    final isLoggedIn = await StorageService.instance.isLoggedIn();
+    if (mounted) {
+      setState(() {
+        _initialScreen = isLoggedIn ? const ChatsScreen() : const WelcomeScreen();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Smart App',
       theme: AppTheme.lightTheme,
       themeMode: ThemeMode.light,
-      home: const WelcomeScreen(),
+      home: _initialScreen,
+      // Wraps every route with:
+      //   1. A gradient banner behind the OS status bar (matches Get Started btn)
+      //   2. The connection status banner (visible only when offline)
+      //   3. The actual app content
+      builder: (context, child) {
+        final statusBarHeight = MediaQuery.of(context).padding.top;
+        return Column(
+          children: [
+            // Gradient strip that fills the OS status bar area
+            Container(
+              height: statusBarHeight,
+              decoration: const BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+              ),
+            ),
+            const ConnectionStatusBar(),
+            Expanded(child: child ?? const SizedBox.shrink()),
+          ],
+        );
+      },
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/welcome':
