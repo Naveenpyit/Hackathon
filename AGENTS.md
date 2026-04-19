@@ -82,6 +82,12 @@ http://172.31.99.85:8000
 |--------|----------|------|-------------|
 | GET | `/api/designations` | No | Get all designations |
 
+### Chat WebSocket Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| WS | `/ws/chat?token=<jwt>` | Yes | WebSocket chat connection |
+
 ---
 
 ## Database Schema
@@ -106,6 +112,41 @@ http://172.31.99.85:8000
 | id | integer | PRIMARY KEY, AUTO INCREMENT |
 | name | text | NOT NULL |
 | created_at | timestamp | DEFAULT NOW() |
+
+#### `conversations`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | uuid | PRIMARY KEY |
+| created_at | timestamp | DEFAULT NOW() |
+| updated_at | timestamp | DEFAULT NOW() |
+
+#### `conversation_participants`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | uuid | PRIMARY KEY |
+| conversation_id | uuid | FK → conversations(id) |
+| user_id | uuid | FK → user_details(id) |
+| joined_at | timestamp | DEFAULT NOW() |
+
+#### `messages`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | uuid | PRIMARY KEY |
+| conversation_id | uuid | FK → conversations(id) |
+| sender_id | uuid | FK → user_details(id) |
+| content | text | NOT NULL |
+| message_type | text | DEFAULT 'text' |
+| is_read | boolean | DEFAULT false |
+| created_at | timestamp | DEFAULT NOW() |
+
+#### `user_sessions`
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | uuid | PRIMARY KEY |
+| user_id | uuid | FK → user_details(id) |
+| socket_id | text | UNIQUE |
+| connected_at | timestamp | DEFAULT NOW() |
+| disconnected_at | timestamp | NULLABLE |
 
 ---
 
