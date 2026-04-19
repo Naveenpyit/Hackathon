@@ -5,6 +5,7 @@ import '../../config/strings.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/services/websocket_service.dart';
 import 'chat_detail_screen.dart';
+import 'new_chat_screen.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({super.key});
@@ -1438,9 +1439,16 @@ class _ChatsScreenState extends State<ChatsScreen>
     return GestureDetector(
       onTap: () {
         Navigator.pop(ctx);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('$label coming soon')));
+        if (label == 'New Chat') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NewChatScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('$label coming soon')));
+        }
       },
       child: Column(
         children: [

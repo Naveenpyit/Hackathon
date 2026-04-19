@@ -19,6 +19,9 @@ class ApiConstants {
   static const String conversations = '$baseUrl/api/conversations';
   static String conversationMessages(String id) => '$baseUrl/api/conversations/$id/messages';
 
-  // ── WebSocket ────────────────────────────────────────────────────────────────
+  // ── Users ────────────────────────────────────────────────────────────────
+  static const String users = '$baseUrl/api/users';
+
+  // ── WebSocket ────────────────────────────────────────────────────────────
   static const String wsChat = '$wsUrl/ws/chat';
 }

@@ -3,123 +3,132 @@ import 'package:http/http.dart' as http;
 import '../network/api_constants.dart';
 import 'storage_service.dart';
 
-class UserData {
+/// Represents a `user_details` row joined with `auth.users`.
+///
+/// - [id] is the primary key of `user_details`
+/// - [userId] is the auth user id (UUID from `auth.users`) — used for
+///   identifying the user in chat and comparing against the currently
+///   logged-in user.
+class AppUser {
   final String id;
   final String userId;
-  final String email;
   final String userName;
+  final String email;
   final String status;
   final String shiftTime;
+  final String? designation;
+  final String createdAt;
 
-  const UserData({
+  const AppUser({
     required this.id,
     required this.userId,
-    required this.email,
     required this.userName,
+    required this.email,
     required this.status,
     required this.shiftTime,
+    required this.createdAt,
+    this.designation,
   });
 
-  factory UserData.fromJson(Map<String, dynamic> json) {
-    return UserData(
-      id: json['id'] as String? ?? '',
-      userId: json['user_id'] as String? ?? '',
+  factory AppUser.fromJson(Map<String, dynamic> json) {
+    // designation can be: { id, name } | String | null
+    String? desigName;
+    final desig = json['designation'];
+    if (desig is Map<String, dynamic>) {
+      desigName = desig['name'] as String?;
+    } else if (desig is String) {
+      desigName = desig;
+    }
+    return AppUser(
+      id: json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      userName:
+          json['user_name'] as String? ?? json['userName'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      userName: json['user_name'] as String? ?? '',
-      status: json['status'] as String? ?? '',
+      status: json['status'] as String? ?? 'active',
       shiftTime: json['shift_time'] as String? ?? '',
+      designation: desigName,
+      createdAt: json['created_at'] as String? ?? '',
     );
   }
+
+  bool get isActive => status.toLowerCase() == 'active';
+}
+
+class UsersResult {
+  final bool success;
+  final String message;
+  final List<AppUser> users;
+
+  const UsersResult({
+    required this.success,
+    required this.message,
+    this.users = const [],
+  });
 }
 
 class UserService {
   UserService._();
   static final UserService instance = UserService._();
 
-  Future<List<UserData>> getAllUsers() async {
+  /// GET /api/users
+  /// Returns list of all users EXCEPT the currently logged-in user.
+  Future<UsersResult> getUsers() async {
     try {
       final token = await StorageService.instance.getAccessToken();
-      final response = await http.get(
-        Uri.parse(ApiConstants.users),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 15));
+      final currentUserId = await StorageService.instance.getUserId();
 
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      if (json['status'] == 1) {
-        final data = json['data'] as List<dynamic>? ?? [];
-        return data.map((u) => UserData.fromJson(u as Map<String, dynamic>)).toList();
+      final response = await http
+          .get(
+            Uri.parse(ApiConstants.users),
+            headers: {
+              'Content-Type': 'application/json',
+              if (token != null && token.isNotEmpty)
+                'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.body.isEmpty) {
+        return const UsersResult(success: false, message: 'Empty response');
       }
-      return [];
-    } catch (e) {
-      return [];
-    }
-  }
 
-  Future<List<UserData>> searchUsers(String query) async {
-    try {
-      final token = await StorageService.instance.getAccessToken();
-      final response = await http.get(
-        Uri.parse('${ApiConstants.searchUsers}?q=$query'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 15));
+      final Map<String, dynamic> json =
+          jsonDecode(response.body) as Map<String, dynamic>;
 
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      if (json['status'] == 1) {
-        final data = json['data'] as List<dynamic>? ?? [];
-        return data.map((u) => UserData.fromJson(u as Map<String, dynamic>)).toList();
+      final int status = json['status'] as int? ?? 0;
+      final String message = json['message'] as String? ?? '';
+
+      if (status == 1 && response.statusCode == 200) {
+        final data = json['data'];
+        if (data is List) {
+          final users = data
+              .whereType<Map<String, dynamic>>()
+              .map(AppUser.fromJson)
+              // exclude users without identity and the currently logged-in user
+              .where(
+                (u) =>
+                    (u.userId.isNotEmpty || u.id.isNotEmpty) &&
+                    u.userId != currentUserId &&
+                    u.id != currentUserId,
+              )
+              .toList();
+          return UsersResult(success: true, message: message, users: users);
+        }
+        return const UsersResult(success: true, message: 'No users');
       }
-      return [];
+
+      return UsersResult(success: false, message: message);
+    } on http.ClientException catch (e) {
+      return UsersResult(
+        success: false,
+        message: 'Network error: ${e.message}',
+      );
     } catch (e) {
-      return [];
-    }
-  }
-
-  Future<Map<String, dynamic>?> createConversation(String participantId) async {
-    try {
-      final token = await StorageService.instance.getAccessToken();
-      final response = await http.post(
-        Uri.parse(ApiConstants.conversations),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({'participant_id': participantId}),
-      ).timeout(const Duration(seconds: 15));
-
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      if (json['status'] == 1) {
-        return json['data'] as Map<String, dynamic>?;
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<List<dynamic>> getConversations() async {
-    try {
-      final token = await StorageService.instance.getAccessToken();
-      final response = await http.get(
-        Uri.parse(ApiConstants.conversations),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 15));
-
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      if (json['status'] == 1) {
-        return json['data'] as List<dynamic>? ?? [];
-      }
-      return [];
-    } catch (e) {
-      return [];
+      return const UsersResult(
+        success: false,
+        message: 'Unable to load users. Please try again.',
+      );
     }
   }
 }
