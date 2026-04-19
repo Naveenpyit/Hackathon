@@ -94,6 +94,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
         children: [
           _buildHeader(),
           _buildSearchBar(),
+          const SizedBox(height: 4),
           Expanded(child: _buildBody()),
         ],
       ),
@@ -105,14 +106,14 @@ class _NewChatScreenState extends State<NewChatScreen> {
       decoration: const BoxDecoration(
         gradient: AppTheme.primaryGradient,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
         ),
       ),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 20, 20),
+          padding: const EdgeInsets.fromLTRB(8, 4, 16, 20),
           child: Row(
             children: [
               IconButton(
@@ -160,103 +161,75 @@ class _NewChatScreenState extends State<NewChatScreen> {
 
   Widget _buildSearchBar() {
     final hasText = _searchController.text.isNotEmpty;
-    return Transform.translate(
-      offset: const Offset(0, -26),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(18),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-              BoxShadow(
-                color: AppTheme.primaryColor.withAlpha(20),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              const SizedBox(width: 14),
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withAlpha(25),
-                  borderRadius: BorderRadius.circular(10),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Container(
+        height: 52,
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceElevated,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 14),
+            Icon(
+              Icons.search_rounded,
+              color: Colors.grey.shade600,
+              size: 22,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                 ),
-                child: const Icon(
-                  Icons.search_rounded,
-                  color: AppTheme.primaryColor,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.1,
+                cursorColor: Colors.black,
+                cursorWidth: 1.6,
+                decoration: InputDecoration(
+                  hintText: 'Search contacts',
+                  hintStyle: TextStyle(
+                    color: Colors.grey.shade500,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
                   ),
-                  cursorColor: Colors.black,
-                  cursorWidth: 1.6,
-                  cursorHeight: 18,
-                  decoration: InputDecoration(
-                    hintText: 'Search contacts',
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
               ),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (child, anim) =>
-                    ScaleTransition(scale: anim, child: child),
-                child: hasText
-                    ? GestureDetector(
-                        key: const ValueKey('clear'),
-                        onTap: () {
-                          _searchController.clear();
-                          setState(() {});
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.close_rounded,
-                            color: Colors.grey.shade700,
-                            size: 16,
-                          ),
+            ),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, anim) =>
+                  ScaleTransition(scale: anim, child: child),
+              child: hasText
+                  ? GestureDetector(
+                      key: const ValueKey('clear'),
+                      onTap: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          shape: BoxShape.circle,
                         ),
-                      )
-                    : const SizedBox(
-                        key: ValueKey('empty'),
-                        width: 14,
+                        child: Icon(
+                          Icons.close_rounded,
+                          color: Colors.grey.shade700,
+                          size: 16,
+                        ),
                       ),
-              ),
-            ],
-          ),
+                    )
+                  : const SizedBox(key: ValueKey('empty'), width: 14),
+            ),
+          ],
         ),
       ),
     );
