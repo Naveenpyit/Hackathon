@@ -340,11 +340,7 @@ class _ChatsScreenState extends State<ChatsScreen>
       child: Row(
         children: [
           const SizedBox(width: 16),
-          const Icon(
-            Icons.search_rounded,
-            color: Colors.white,
-            size: 22,
-          ),
+          const Icon(Icons.search_rounded, color: Colors.white, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -450,9 +446,7 @@ class _ChatsScreenState extends State<ChatsScreen>
                   color: selected ? null : AppTheme.surfaceColor,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: selected
-                        ? Colors.transparent
-                        : AppTheme.borderColor,
+                    color: selected ? Colors.transparent : AppTheme.borderColor,
                     width: 1,
                   ),
                   boxShadow: selected
@@ -525,7 +519,8 @@ class _ChatsScreenState extends State<ChatsScreen>
         if (pinned.isNotEmpty) ...[
           _buildSectionHeader(Icons.push_pin_rounded, 'Pinned'),
           ...pinned.asMap().entries.map(
-            (e) => _animatedTile(e.value, e.key, pinned.length + regular.length),
+            (e) =>
+                _animatedTile(e.value, e.key, pinned.length + regular.length),
           ),
           const SizedBox(height: 8),
         ],
@@ -635,10 +630,7 @@ class _ChatsScreenState extends State<ChatsScreen>
         padding: const EdgeInsets.only(right: 24),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              AppTheme.errorColor.withAlpha(200),
-              AppTheme.errorColor,
-            ],
+            colors: [AppTheme.errorColor.withAlpha(200), AppTheme.errorColor],
           ),
           borderRadius: BorderRadius.circular(16),
         ),
@@ -735,10 +727,7 @@ class _ChatsScreenState extends State<ChatsScreen>
               decoration: BoxDecoration(
                 color: AppTheme.onlineColor,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppTheme.backgroundColor,
-                  width: 2.5,
-                ),
+                border: Border.all(color: AppTheme.backgroundColor, width: 2.5),
               ),
             ),
           ),
@@ -752,10 +741,7 @@ class _ChatsScreenState extends State<ChatsScreen>
               decoration: BoxDecoration(
                 color: AppTheme.surfaceColor,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppTheme.backgroundColor,
-                  width: 2,
-                ),
+                border: Border.all(color: AppTheme.backgroundColor, width: 2),
               ),
               child: const Icon(
                 Icons.groups_rounded,
@@ -799,11 +785,7 @@ class _ChatsScreenState extends State<ChatsScreen>
             ],
             if (chat.isPinned) ...[
               const SizedBox(width: 4),
-              Icon(
-                Icons.push_pin_rounded,
-                size: 12,
-                color: AppTheme.textMuted,
-              ),
+              Icon(Icons.push_pin_rounded, size: 12, color: AppTheme.textMuted),
             ],
           ],
         ),
@@ -972,11 +954,7 @@ class _ChatsScreenState extends State<ChatsScreen>
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: () => _showNewChatOptions(),
-          child: const Icon(
-            Icons.chat_rounded,
-            color: Colors.white,
-            size: 26,
-          ),
+          child: const Icon(Icons.chat_rounded, color: Colors.white, size: 26),
         ),
       ),
     );
@@ -987,11 +965,7 @@ class _ChatsScreenState extends State<ChatsScreen>
     final items = [
       (Icons.chat_bubble_rounded, Icons.chat_bubble_outline_rounded, 'Chats'),
       (Icons.groups_rounded, Icons.groups_outlined, 'Teams'),
-      (
-        Icons.calendar_month_rounded,
-        Icons.calendar_month_outlined,
-        'Calendar',
-      ),
+      (Icons.calendar_month_rounded, Icons.calendar_month_outlined, 'Calendar'),
       (Icons.person_rounded, Icons.person_outline_rounded, 'Profile'),
     ];
     return Container(
@@ -1092,6 +1066,7 @@ class _ChatsScreenState extends State<ChatsScreen>
       context,
       MaterialPageRoute(
         builder: (_) => ChatDetailScreen(
+          conversationId: chat.conversationId ?? '',
           chatName: chat.name,
           avatar: chat.avatar,
           avatarColor: chat.avatarColor,
@@ -1178,9 +1153,7 @@ class _ChatsScreenState extends State<ChatsScreen>
             const Divider(height: 1, color: AppTheme.borderColor),
             const SizedBox(height: 8),
             _sheetTile(
-              chat.isPinned
-                  ? Icons.push_pin_rounded
-                  : Icons.push_pin_outlined,
+              chat.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
               chat.isPinned ? 'Unpin chat' : 'Pin chat',
               ctx,
               onTap: () => _togglePin(chat),
@@ -1297,7 +1270,9 @@ class _ChatsScreenState extends State<ChatsScreen>
   void _togglePin(ChatItem chat) {
     setState(() {
       _chats = _chats
-          .map((c) => c.name == chat.name ? c.copyWith(isPinned: !c.isPinned) : c)
+          .map(
+            (c) => c.name == chat.name ? c.copyWith(isPinned: !c.isPinned) : c,
+          )
           .toList();
     });
     _showSnack(
@@ -1334,21 +1309,19 @@ class _ChatsScreenState extends State<ChatsScreen>
     setState(() {
       _chats = _chats
           .map(
-            (c) => c.name == chat.name
-                ? c.copyWith(isArchived: !c.isArchived)
-                : c,
+            (c) =>
+                c.name == chat.name ? c.copyWith(isArchived: !c.isArchived) : c,
           )
           .toList();
     });
     _showSnack(
       wasArchived ? 'Chat unarchived' : 'Chat archived',
-      icon: wasArchived
-          ? Icons.unarchive_rounded
-          : Icons.archive_rounded,
+      icon: wasArchived ? Icons.unarchive_rounded : Icons.archive_rounded,
       action: SnackBarAction(
         label: 'UNDO',
         textColor: AppTheme.primaryColor,
-        onPressed: () => _toggleArchive(chat.copyWith(isArchived: !wasArchived)),
+        onPressed: () =>
+            _toggleArchive(chat.copyWith(isArchived: !wasArchived)),
       ),
     );
   }
@@ -1357,9 +1330,7 @@ class _ChatsScreenState extends State<ChatsScreen>
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Delete Chat'),
         content: Text(
           'Delete conversation with ${chat.name}? This cannot be undone.',
@@ -1374,9 +1345,7 @@ class _ChatsScreenState extends State<ChatsScreen>
               Navigator.pop(ctx);
               _deleteChat(chat);
             },
-            style: TextButton.styleFrom(
-              foregroundColor: AppTheme.errorColor,
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
             child: const Text('Delete'),
           ),
         ],
@@ -1407,9 +1376,7 @@ class _ChatsScreenState extends State<ChatsScreen>
         action: action,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -1534,6 +1501,7 @@ enum MessageStatus { sent, delivered, read }
 
 class ChatItem {
   final String name, lastMessage, timestamp, avatar;
+  final String? conversationId;
   final int unreadCount;
   final bool isGroup, isOnline, isTyping, isPinned, isMuted, isArchived;
   final Color avatarColor;
@@ -1547,6 +1515,7 @@ class ChatItem {
     required this.isGroup,
     required this.avatar,
     required this.avatarColor,
+    this.conversationId,
     this.isOnline = false,
     this.isTyping = false,
     this.isPinned = false,
@@ -1560,6 +1529,7 @@ class ChatItem {
     String? lastMessage,
     String? timestamp,
     String? avatar,
+    String? conversationId,
     int? unreadCount,
     bool? isGroup,
     bool? isOnline,
@@ -1575,6 +1545,7 @@ class ChatItem {
       lastMessage: lastMessage ?? this.lastMessage,
       timestamp: timestamp ?? this.timestamp,
       avatar: avatar ?? this.avatar,
+      conversationId: conversationId ?? this.conversationId,
       unreadCount: unreadCount ?? this.unreadCount,
       isGroup: isGroup ?? this.isGroup,
       isOnline: isOnline ?? this.isOnline,

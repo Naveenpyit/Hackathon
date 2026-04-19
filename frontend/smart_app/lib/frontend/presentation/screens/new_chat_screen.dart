@@ -439,10 +439,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
               decoration: BoxDecoration(
                 color: AppTheme.onlineColor,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppTheme.backgroundColor,
-                  width: 2.5,
-                ),
+                border: Border.all(color: AppTheme.backgroundColor, width: 2.5),
               ),
             ),
           ),
@@ -471,10 +468,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
             if (user.designation != null && user.designation!.isNotEmpty) ...[
               const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 2,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryColor.withAlpha(25),
                   borderRadius: BorderRadius.circular(6),

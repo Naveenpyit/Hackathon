@@ -137,6 +137,90 @@ export class ChatService {
     return !error && !!data;
   }
 
+  static async findOneOnOneConversation(userId1: string, userId2: string): Promise<Conversation | null> {
+    // Find conversations where both users are participants
+    const { data: conv1, error: err1 } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("user_id", userId1);
+
+    if (err1 || !conv1) return null;
+
+    const { data: conv2, error: err2 } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("user_id", userId2)
+      .in("conversation_id", conv1.map(p => p.conversation_id));
+
+    if (err2 || !conv2 || conv2.length === 0) return null;
+
+    // Of the matching conversations, find one that has exactly 2 participants (1-on-1)
+    for (const conv of conv2) {
+      const { count, error: countErr } = await supabase
+        .from("conversation_participants")
+        .select("*", { count: 'exact', head: true })
+        .eq("conversation_id", conv.conversation_id);
+
+      if (!countErr && count === 2) {
+        return this.getConversation(conv.conversation_id);
+      }
+    }
+
+    return null;
+  }
+
+  static async getConversationWithDetails(conversationId: string): Promise<any | null> {
+    const { data, error } = await supabase
+      .from("conversations")
+      .select(`
+        *,
+        participants:conversation_participants(
+          user:user_details(*)
+        ),
+        last_message:messages(*)
+      `)
+      .eq("id", conversationId)
+      .order("created_at", { foreignTable: "messages", ascending: false })
+      .limit(1, { foreignTable: "messages" })
+      .single();
+
+    if (error) return null;
+    return data;
+  }
+
+  static async getConversationsWithDetails(userId: string): Promise<any[]> {
+    const { data: participants, error } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("user_id", userId);
+
+    if (error || !participants) return [];
+
+    const conversationIds = participants.map(p => p.conversation_id);
+    if (conversationIds.length === 0) return [];
+
+    const { data, error: convError } = await supabase
+      .from("conversations")
+      .select(`
+        *,
+        participants:conversation_participants(
+          user:user_details(*)
+        ),
+        messages(*)
+      `)
+      .in("id", conversationIds)
+      .order("created_at", { foreignTable: "messages", ascending: false });
+
+    if (convError) return [];
+    
+    // Map to include only the last message
+    return (data || []).map(conv => ({
+      ...conv,
+      last_message: conv.messages && conv.messages.length > 0 ? conv.messages[0] : null,
+      messages: undefined
+    }));
+  }
+
   static async createUserSession(
     userId: string,
     socketId: string
