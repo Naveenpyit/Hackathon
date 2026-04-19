@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../../config/theme.dart';
 import '../../config/strings.dart';
 import '../../core/services/storage_service.dart';
+import '../../core/services/websocket_service.dart';
+import 'chat_detail_screen.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({super.key});
@@ -113,11 +115,19 @@ class _ChatsScreenState extends State<ChatsScreen>
     )..forward();
     _searchController.addListener(() => setState(() {}));
     _loadUser();
+    _connectWebSocket();
   }
 
   Future<void> _loadUser() async {
     final name = await StorageService.instance.getUserName();
     if (mounted) setState(() => _userName = name);
+  }
+
+  Future<void> _connectWebSocket() async {
+    await WebSocketService.instance.connect();
+    WebSocketService.instance.messages.listen((messages) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
