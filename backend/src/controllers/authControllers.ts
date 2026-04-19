@@ -90,9 +90,12 @@ export const authController = {
       ctx.response.status = 200;
       ctx.response.body = {
         status: 1,
-        message: result.message,
-        data: result.data,
-      } as SigninResponse;
+        message: "success",
+        data: {
+          access_token: result.data!.access_token,
+          refresh_token: result.data!.refresh_token,
+        },
+      };
     } catch (error) {
       console.error("Signin controller error:", error);
       ctx.response.status = 500;
@@ -140,6 +143,56 @@ export const authController = {
       } as ApiResponse;
     } catch (error) {
       console.error("Get current user error:", error);
+      ctx.response.status = 500;
+      ctx.response.body = {
+        status: 0,
+        message: "An unexpected error occurred",
+        data: null,
+      } as ApiResponse;
+    }
+  },
+
+  // Refresh token handler
+  async refreshToken(ctx: Context) {
+    try {
+      const body = ctx.request.body({ type: "json" });
+      const requestData = await body.value;
+
+      const refreshToken = requestData?.refresh_token as string;
+
+      if (!refreshToken) {
+        ctx.response.status = 400;
+        ctx.response.body = {
+          status: 0,
+          message: "Refresh token is required",
+          data: null,
+        } as ApiResponse;
+        return;
+      }
+
+      const result = await authService.refreshToken(refreshToken);
+
+      if (!result.success) {
+        ctx.response.status = 401;
+        ctx.response.body = {
+          status: 0,
+          message: result.message,
+          data: null,
+        } as ApiResponse;
+        return;
+      }
+
+      ctx.response.status = 200;
+      ctx.response.body = {
+        status: 1,
+        message: result.message,
+        data: {
+          access_token: result.data!.access_token,
+          refresh_token: result.data!.refresh_token,
+        },
+      };
+    } catch (error) {
+      console.error("Refresh token controller error:", error);
       ctx.response.status = 500;
       ctx.response.body = {
         status: 0,
