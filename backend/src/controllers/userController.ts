@@ -7,7 +7,7 @@ export const userController = {
   async getAllUsers(ctx: Context) {
     try {
       const result = await userService.getAllUsers();
-
+      console.log("result: ", result)
       if (!result.success) {
         ctx.response.status = 500;
         ctx.response.body = {
