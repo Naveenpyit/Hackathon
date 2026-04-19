@@ -5,6 +5,8 @@ import '../../config/strings.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/services/websocket_service.dart';
 import 'chat_detail_screen.dart';
+import 'new_chat_screen.dart';
+import '../../core/services/user_service.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({super.key});
@@ -20,79 +22,8 @@ class _ChatsScreenState extends State<ChatsScreen>
   late AnimationController _animController;
   String? _userName;
 
-  final List<ChatItem> _chats = const [
-    ChatItem(
-      name: 'Project Alpha Team',
-      lastMessage: 'Meeting confirmed for 3 PM today',
-      timestamp: '2m',
-      unreadCount: 3,
-      isGroup: true,
-      avatar: 'PA',
-      avatarColor: AppTheme.primaryColor,
-      isOnline: true,
-    ),
-    ChatItem(
-      name: 'John Doe',
-      lastMessage: 'Typing...',
-      timestamp: '15m',
-      unreadCount: 0,
-      isGroup: false,
-      avatar: 'JD',
-      avatarColor: Color(0xFFFF6B6B),
-      isOnline: true,
-      isTyping: true,
-    ),
-    ChatItem(
-      name: 'Design Team',
-      lastMessage: 'New mockups ready for review',
-      timestamp: '1h',
-      unreadCount: 5,
-      isGroup: true,
-      avatar: 'DT',
-      avatarColor: Color(0xFF00BFFF),
-      isOnline: false,
-    ),
-    ChatItem(
-      name: 'Sarah Smith',
-      lastMessage: 'Thanks for the update!',
-      timestamp: '3h',
-      unreadCount: 0,
-      isGroup: false,
-      avatar: 'SS',
-      avatarColor: Color(0xFFFF9F43),
-      isOnline: false,
-    ),
-    ChatItem(
-      name: 'Development Squad',
-      lastMessage: 'PR #234 ready for review',
-      timestamp: '5h',
-      unreadCount: 2,
-      isGroup: true,
-      avatar: 'DS',
-      avatarColor: Color(0xFF00C853),
-      isOnline: true,
-    ),
-    ChatItem(
-      name: 'Mike Wilson',
-      lastMessage: 'Let me check the docs',
-      timestamp: '1d',
-      unreadCount: 0,
-      isGroup: false,
-      avatar: 'MW',
-      avatarColor: Color(0xFF9C27B0),
-      isOnline: false,
-    ),
-    ChatItem(
-      name: 'Product Team',
-      lastMessage: 'Sprint planning tomorrow',
-      timestamp: '1d',
-      unreadCount: 1,
-      isGroup: true,
-      avatar: 'PT',
-      avatarColor: Color(0xFF3F51B5),
-      isOnline: false,
-    ),
-  ];
+  List<ChatItem> _chats = [];
+  bool _isLoading = true;
 
   List<ChatItem> get _filtered {
     if (_searchController.text.isEmpty) return _chats;
@@ -115,7 +46,52 @@ class _ChatsScreenState extends State<ChatsScreen>
     )..forward();
     _searchController.addListener(() => setState(() {}));
     _loadUser();
+    _loadConversations();
     _connectWebSocket();
+  }
+
+  Future<void> _loadConversations() async {
+    setState(() => _isLoading = true);
+    final convs = await UserService.instance.getConversations();
+    final myId = await StorageService.instance.getUserId();
+
+    if (mounted) {
+      setState(() {
+        _chats = convs.map((c) {
+          final participants = c['participants'] as List<dynamic>? ?? [];
+          final otherUser = participants.firstWhere(
+            (p) => p['user']['user_id'] != myId,
+            orElse: () => participants.first,
+          )['user'];
+          
+          final lastMsg = c['last_message'];
+
+          return ChatItem(
+            id: c['id'] as String,
+            name: otherUser['user_name'] as String? ?? 'Unknown',
+            lastMessage: lastMsg?['content'] as String? ?? 'No messages yet',
+            timestamp: _formatTimestamp(lastMsg?['created_at']),
+            unreadCount: 0, // TODO: Implement unread count
+            isGroup: false,
+            avatar: (otherUser['user_name'] as String? ?? 'U').substring(0, 1).toUpperCase(),
+            avatarColor: AppTheme.primaryColor,
+            isOnline: false,
+          );
+        }).toList();
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _formatTimestamp(String? iso) {
+    if (iso == null) return '';
+    final dt = DateTime.parse(iso);
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    return '${diff.inDays}d';
   }
 
   Future<void> _loadUser() async {
@@ -125,8 +101,11 @@ class _ChatsScreenState extends State<ChatsScreen>
 
   Future<void> _connectWebSocket() async {
     await WebSocketService.instance.connect();
-    WebSocketService.instance.messages.listen((messages) {
-      if (mounted) setState(() {});
+    WebSocketService.instance.messages.listen((message) {
+      if (mounted) {
+        // Find existing chat and update it, or reload all
+        _loadConversations();
+      }
     });
   }
 
@@ -602,12 +581,19 @@ class _ChatsScreenState extends State<ChatsScreen>
     );
   }
 
-  void _openChat(ChatItem chat) => ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('Opening ${chat.name}'),
-      duration: const Duration(milliseconds: 600),
-    ),
-  );
+  void _openChat(ChatItem chat) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatDetailScreen(
+          conversationId: chat.id,
+          chatName: chat.name,
+          avatar: chat.avatar,
+          avatarColor: chat.avatarColor,
+        ),
+      ),
+    );
+  }
 
   void _showChatOptions(ChatItem chat) {
     showModalBottomSheet(
@@ -706,9 +692,16 @@ class _ChatsScreenState extends State<ChatsScreen>
       GestureDetector(
         onTap: () {
           Navigator.pop(ctx);
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('$label coming soon')));
+          if (label == 'New Chat') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NewChatScreen()),
+            );
+          } else {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('$label coming soon')));
+          }
         },
         child: Column(
           children: [
@@ -748,12 +741,13 @@ class _ChatsScreenState extends State<ChatsScreen>
 }
 
 class ChatItem {
-  final String name, lastMessage, timestamp, avatar;
+  final String id, name, lastMessage, timestamp, avatar;
   final int unreadCount;
   final bool isGroup, isOnline, isTyping;
   final Color avatarColor;
 
   const ChatItem({
+    required this.id,
     required this.name,
     required this.lastMessage,
     required this.timestamp,

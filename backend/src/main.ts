@@ -1,5 +1,5 @@
 import { Application } from "oak";
-import { authRouter, designationRouter } from "./routers/routers.ts";
+import { authRouter, designationRouter, userRouter, chatRouter } from "./routers/routers.ts";
 import { handleChatConnection, handleChatMessage, handleDisconnect } from "./controllers/chatControllers.ts";
 
 const app = new Application();
@@ -79,6 +79,10 @@ app.use(authRouter.routes());
 app.use(authRouter.allowedMethods());
 app.use(designationRouter.routes());
 app.use(designationRouter.allowedMethods());
+app.use(userRouter.routes());
+app.use(userRouter.allowedMethods());
+app.use(chatRouter.routes());
+app.use(chatRouter.allowedMethods());
 
 // Health check endpoint
 app.use((ctx) => {

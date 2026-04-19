@@ -4,12 +4,14 @@ import '../../core/services/websocket_service.dart';
 import '../../core/services/storage_service.dart';
 
 class ChatDetailScreen extends StatefulWidget {
+  final String conversationId;
   final String chatName;
   final String avatar;
   final Color avatarColor;
 
   const ChatDetailScreen({
     super.key,
+    required this.conversationId,
     required this.chatName,
     required this.avatar,
     required this.avatarColor,
@@ -39,27 +41,22 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     if (mounted) setState(() => _userName = name);
   }
 
-  void _loadHistory() {
-    _messages.addAll([
-      MessageBubble(sender: 'Alice', message: 'Hey! How are you?', time: '10:30 AM', isMe: false),
-      MessageBubble(sender: 'You', message: 'I\'m good! Working on the new project.', time: '10:32 AM', isMe: true),
-      MessageBubble(sender: 'Alice', message: 'That sounds great! Can\'t wait to see it.', time: '10:33 AM', isMe: false),
-    ]);
+  Future<void> _loadHistory() async {
+    // TODO: Implement fetching history via REST API
+    // For now, WebSocket will push history if requested, or we can just rely on new messages
   }
 
   void _listenToMessages() {
-    WebSocketService.instance.messages.listen((messages) {
+    WebSocketService.instance.messages.listen((m) {
       if (mounted) {
-        final msgs = messages
-            .where((m) => m.senderId.isNotEmpty)
-            .map((m) => MessageBubble(
-                  sender: m.senderName,
-                  message: m.content,
-                  time: _formatTime(m.timestamp),
-                  isMe: m.isMe,
-                ))
-            .toList();
-        setState(() => _messages.addAll(msgs));
+        setState(() {
+          _messages.add(MessageBubble(
+            sender: m.senderName,
+            message: m.content,
+            time: _formatTime(m.timestamp),
+            isMe: m.isMe,
+          ));
+        });
         _scrollToBottom();
       }
     });
@@ -98,7 +95,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     _messageController.clear();
     _scrollToBottom();
 
-    await WebSocketService.instance.sendMessage(text);
+    await WebSocketService.instance.sendMessage(widget.conversationId, text);
 
     if (mounted) {
       setState(() => _isSending = false);

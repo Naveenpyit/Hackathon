@@ -29,7 +29,7 @@ class ChatMessage {
       senderId: json['sender_id'] as String? ?? '',
       senderName: json['sender_name'] as String? ?? 'Unknown',
       content: json['content'] as String? ?? '',
-      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+      timestamp: DateTime.tryParse(json['created_at'] as String? ?? '') ?? DateTime.now(),
       isMe: isMyMessage,
     );
   }
@@ -42,28 +42,29 @@ class WebSocketService {
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
 
-  final _messageController = StreamController<List<ChatMessage>>.broadcast();
+  final _messageController = StreamController<ChatMessage>.broadcast();
   final _connectionController = StreamController<bool>.broadcast();
 
-  Stream<List<ChatMessage>> get messages => _messageController.stream;
+  Stream<ChatMessage> get messages => _messageController.stream;
   Stream<bool> get connectionStatus => _connectionController.stream;
 
   bool _isConnected = false;
   bool get isConnected => _isConnected;
 
-  List<ChatMessage> _cachedMessages = [];
-
   Future<bool> connect() async {
     try {
-      _channel = WebSocketChannel.connect(Uri.parse(ApiConstants.wsChat));
-
       final accessToken = await StorageService.instance.getAccessToken();
-      if (accessToken != null && accessToken.isNotEmpty) {
-        _channel!.sink.add(jsonEncode({
-          'type': 'auth',
-          'token': accessToken,
-        }));
-      }
+      if (accessToken == null || accessToken.isEmpty) return false;
+
+      // Connect with token in query param
+      final wsUri = Uri.parse('${ApiConstants.wsChat}?token=$accessToken');
+      _channel = WebSocketChannel.connect(wsUri);
+
+      // Also send auth event for legacy/backup if backend needs it
+      _channel!.sink.add(jsonEncode({
+        'type': 'connection:auth',
+        'payload': {'token': accessToken},
+      }));
 
       _subscription = _channel!.stream.listen(
         _onMessage,
@@ -86,21 +87,20 @@ class WebSocketService {
     try {
       final json = jsonDecode(data as String) as Map<String, dynamic>;
       final type = json['type'] as String?;
+      final payload = json['payload'];
 
       switch (type) {
-        case 'history':
-          final messages = (json['messages'] as List<dynamic>?)
-              ?.map((m) => ChatMessage.fromJson(m as Map<String, dynamic>, ''))
-              .toList() ??
-              [];
-          _cachedMessages = messages;
-          _messageController.add(messages);
+        case 'connection:accepted':
+          debugPrint('WebSocket connection accepted');
           break;
 
-        case 'message':
-          final newMessage = ChatMessage.fromJson(json, '');
-          _cachedMessages = [..._cachedMessages, newMessage];
-          _messageController.add(_cachedMessages);
+        case 'message:new':
+          if (payload != null) {
+            StorageService.instance.getUserId().then((myUserId) {
+              final newMessage = ChatMessage.fromJson(payload as Map<String, dynamic>, myUserId ?? '');
+              _messageController.add(newMessage);
+            });
+          }
           break;
 
         case 'error':
@@ -124,7 +124,7 @@ class WebSocketService {
     _connectionController.add(false);
   }
 
-  Future<void> sendMessage(String content) async {
+  Future<void> sendMessage(String conversationId, String content) async {
     if (_channel == null || !_isConnected) {
       debugPrint('WebSocket not connected');
       return;
@@ -132,8 +132,11 @@ class WebSocketService {
 
     try {
       _channel!.sink.add(jsonEncode({
-        'type': 'message',
-        'content': content,
+        'type': 'message:new',
+        'payload': {
+          'conversation_id': conversationId,
+          'content': content,
+        },
       }));
     } catch (e) {
       debugPrint('WebSocket send error: $e');

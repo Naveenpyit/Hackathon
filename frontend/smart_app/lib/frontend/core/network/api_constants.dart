@@ -9,6 +9,15 @@ class ApiConstants {
   // ── Auth ──────────────────────────────────────────────────────────────────
   static const String signup = '$baseUrl/api/auth/signup';
   static const String signin = '$baseUrl/api/auth/signin';
+  static const String me = '$baseUrl/api/auth/me';
+
+  // ── Users ──────────────────────────────────────────────────────────────────
+  static const String users = '$baseUrl/api/users';
+  static const String searchUsers = '$baseUrl/api/users/search';
+
+  // ── Conversations ──────────────────────────────────────────────────────────
+  static const String conversations = '$baseUrl/api/conversations';
+  static String conversationMessages(String id) => '$baseUrl/api/conversations/$id/messages';
 
   // ── WebSocket ────────────────────────────────────────────────────────────────
   static const String wsChat = '$wsUrl/ws/chat';
