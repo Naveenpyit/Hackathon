@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
+import '../../core/services/conversation_service.dart';
 import '../../core/services/user_service.dart';
 import 'chat_detail_screen.dart';
 
@@ -535,14 +536,64 @@ class _NewChatScreenState extends State<NewChatScreen> {
     );
   }
 
-  void _openChatWith(AppUser user, Color color, String initials) {
+  Future<void> _openChatWith(
+    AppUser user,
+    Color color,
+    String initials,
+  ) async {
+    // Use user_details.id as the participant id (matches messages.sender_id).
+    final participantId = user.id.isNotEmpty ? user.id : user.userId;
+    if (participantId.isEmpty) {
+      _showError('Unable to start chat: missing user id');
+      return;
+    }
+
+    // Show loading overlay while we create/fetch the conversation.
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 3,
+          valueColor: AlwaysStoppedAnimation(AppTheme.primaryColor),
+        ),
+      ),
+    );
+
+    final result = await ConversationService.instance.startConversation(
+      participantId,
+    );
+
+    if (!mounted) return;
+    Navigator.pop(context); // close loader
+
+    if (!result.success || result.conversationId == null) {
+      _showError(result.message);
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ChatDetailScreen(
+          conversationId: result.conversationId!,
           chatName: user.userName.isNotEmpty ? user.userName : user.email,
           avatar: initials,
           avatarColor: color,
+        ),
+      ),
+    );
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: AppTheme.errorColor,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
